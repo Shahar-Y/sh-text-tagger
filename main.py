@@ -7,26 +7,30 @@ testing_dir = './testing/'
 
 
 def get_files_with_paths(path):
-    files = []
-    for (r, d, f) in os.walk(path):
-        for file in f:
+    filePaths = []
+    for (root, dirs, files) in os.walk(path):
+        for file in files:
             if '.txt' in file:
-                files.append(os.path.join(r, file))
+                filePaths.append(os.path.join(root, file))
 
-    return files
+    return filePaths
 
 def create_corpus():
     corpus = []
     filenames = get_files_with_paths(training_dir)
+    fileIndexes = []
+    i = 0
     for fname in filenames:
         with open(fname, 'r', encoding="utf8") as file:
             data = file.read().replace('\n', ' ')
-
+            fileIndexes.append((i, fname))
             corpus.append(data)
-    return corpus
+            i += 1
+    return corpus, fileIndexes
 
 
-heb_corpus = create_corpus()
+heb_corpus, fileIndexes = create_corpus()
+# print(heb_corpus)
 
 # Create a set of frequent words
 stoplist = set('של ו ה כי אם . אבל אולם גם או רק'.split(' '))
@@ -68,4 +72,10 @@ with open(testing_dir+'rrh2.txt', 'r', encoding="utf8") as file:
     test_bow = dictionary.doc2bow(test_data.split())
     sims2 = index[tfidf[test_bow]]
     print(list(enumerate(sims2)))
+    i = 0
+    for file in list(enumerate(sims2)):
+        print(fileIndexes[i][1], list(enumerate(sims2))[i][1])
+        i += 1
+
+
 
